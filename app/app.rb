@@ -35,7 +35,7 @@ def get_nokogiri(url)
 class SearchLease
   include Operations
 
-  attr_accessor :lines, :stations, :lower, :upper, :madori, :url
+  attr_accessor :lines, :stations, :lower, :upper, :madori
 
   def initialize(lines, stations, lower='', upper='', madori='')
     @lines = lines
@@ -106,6 +106,30 @@ class SearchLease
     sleep 1
   end
 
+  def setting_option(driver)
+    """
+    賃料(下限金額・上限金額)、間取りタイプのオプションを設定するメソッド
+    """
+    if @lower
+      select_option(driver, '//*[@id="js-conditionbox"]/div[2]/div/dl[2]/dd/dl[1]/dd/div/div[1]/select[1]', @lower)
+    end
+    if @upper
+      select_option(driver, '//*[@id="js-conditionbox"]/div[2]/div/dl[2]/dd/dl[1]/dd/div/div[1]/select[2]', @upper)
+    end
+    madori_hash = {
+    'ワンルーム' => '//*[@id="md0"]', '1K' => '//*[@id="md1"]', '1DK' => '//*[@id="md2"]',
+    '1LDK' => '//*[@id="md3"]', '2K' => '//*[@id="md4"]'
+    }
+    if @madori.length >= 1
+      @madori.each do |madori|
+        click(driver, madori_hash[madori])
+      end
+    end
+
+    click(driver, '//*[@id="js-conditionbox"]/div[2]/div/dl[2]/dd/div/div/ul/li[2]/a')
+
+  end
+
   def search_lease
     """
     このクラスのメイン関数
@@ -116,12 +140,14 @@ class SearchLease
     check_lines(driver)
     # 指定した駅名のチェックボックスにチェックを入れて検索
     check_stations(driver)
-    driver.save_screenshot('a.png')
+    # オプションを設定する
+    setting_option(driver)
+    puts driver.current_url
     driver.quit
   end
 end
 
 if $0 == __FILE__
-  sl = SearchLease.new(['ＪＲ山手線'], ['原宿'])
+  sl = SearchLease.new(['ＪＲ山手線'], ['原宿'], nil, '9万円', ['ワンルーム', '1K', '1DK', '2K'])
   sl.search_lease
 end

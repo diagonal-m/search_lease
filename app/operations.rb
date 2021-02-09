@@ -27,14 +27,15 @@ module Operations
     element.click
   end
 
-  def select_option(driver, text)
+  def select_option(driver, xpath, text)
     """
     #select要素のoptionを選択する(クリックとは方法が異なる)
     """
-    #element = Selenium::WebDriver::Wait.new(:timeout => MAX_WAIT_TIME).until {
-    #  Selenium::WebDriver::Support::Select.new(driver.find_element(:xpath, xpath)
-    #}
-    #element.select_by(:text, text)
+    element = Selenium::WebDriver::Wait.new(:timeout => MAX_WAIT_TIME).until {
+      driver.find_element(:xpath, xpath)
+    }  # 指定した要素が出現するまで最大MAX_WAIT_TIME秒待つ
+    select = Selenium::WebDriver::Support::Select.new(element)
+    select.select_by(:text, text)
   end
 
   def get_attribute(driver, xpath, attribute = 'src')
