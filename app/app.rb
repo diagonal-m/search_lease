@@ -13,6 +13,14 @@ require './operations'
 
 include Consts
 
+LINES = [
+  'ＪＲ山手線', 'ＪＲ埼京線', '東京メトロ銀座線', '東京メトロ副都心線', '京王井の頭線', '東急東横線', '東急田園都市線', '東京メトロ千代田線', '東京メトロ半蔵門線'
+]
+STATIONS = [
+  '渋谷', '原宿', '代々木', '目黒', '恵比寿', '大崎', '池袋', '表参道', '外苑前', '青山一丁目', '明治神宮前', '北参道', '神泉', '駒場東大前', '代官山', '中目黒', '池尻大橋', '三軒茶屋',
+  '代々木公園', '乃木坂', '赤坂', '永田町'
+]
+
 
 def get_nokogiri(url)
   """
@@ -74,9 +82,20 @@ class SearchLease
 
     # 指定した路線のチェックボックにチェックを入れていく
     @lines.each do |line|
-      click(driver, "//*[@id='#{line_xpath_hash[line]}']")
+      # 10.times do
+      [100, 100, 500, 500, 800, 800, 1200, 1200, 1600, 1600, 2000, 2000, 3000, 3000, 5000, 5000, 7000, 7000].each do |sc|
+        begin
+          puts line
+          driver.save_screenshot('line.png')
+          click(driver, "//*[@id='#{line_xpath_hash[line]}']")
+          break
+        rescue => exception
+          #driver.execute_script('window.scroll(0,500);')
+          driver.execute_script("window.scroll(0,#{sc});")
+          sleep 5
+        end
+      end
     end
-
     # チェックした沿線の駅を絞り込むを押下
     click(driver, '//*[@id="js-gotoEkiBtn2"]')
     sleep 1
@@ -98,7 +117,19 @@ class SearchLease
 
     # 指定した駅名のチェックボックスにチェックを入れていく
     @stations.each do |station|
-      click(driver, "//*[@id='#{station_xpath_hash[station]}']")
+      # 10.times do
+      [100, 100, 500, 500, 800, 800, 1200, 1200, 1600, 1600, 2000, 2000, 3000, 3000, 5000, 5000, 7000, 7000].each do |sc|
+        begin
+          puts station
+          driver.save_screenshot('line.png')
+          click(driver, "//*[@id='#{station_xpath_hash[station]}']")
+          break
+        rescue => exception
+          # driver.execute_script('window.scroll(0,300);')
+          driver.execute_script("window.scroll(0,#{sc});")
+          sleep 1
+        end
+      end
     end
 
     # この条件で検索するを押下
@@ -148,6 +179,6 @@ class SearchLease
 end
 
 if $0 == __FILE__
-  sl = SearchLease.new(['ＪＲ山手線'], ['原宿'], nil, '9万円', ['ワンルーム', '1K', '1DK', '2K'])
+  sl = SearchLease.new(LINES, STATIONS, nil, '9万円', ['ワンルーム', '1K', '1DK', '2K'])
   sl.search_lease
 end
